@@ -134,10 +134,21 @@
     collection.forEach(function(node) {
       node.addEventListener(eventType, handler.bind(null, data));
     });
+
+    return this;
   };
 
 // Remove an event handler.
-  DomNodeCollection.prototype.off = function () {
-    
+  DomNodeCollection.prototype.off = function (eventType, selector, handler) {
+    var collection = this.collection;
+    if (selector) {
+      collection = this.find(selector).collection;
+    }
+
+    collection.forEach(function(node) {
+      node.removeEventListener(eventType, handler);
+    });
+
+    return this;
   };
 })();
