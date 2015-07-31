@@ -85,6 +85,17 @@
     return childCol;
   };
 
+  DomNodeCollection.prototype.parent= function() {
+    var parentCol = new DomNodeCollection();
+    var seen = {};
+    this.collection.forEach(function(node) {
+      if (!seen[node.parentNode.outerHTML]) {
+        parentCol.collection.push(node.parentNode);
+        seen[node.parentNode.outerHTML] = true;
+      }
+    });
 
+    return parentCol;
+  };
 
 })();
