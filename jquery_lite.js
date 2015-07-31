@@ -66,7 +66,7 @@
     return this.collection;
   };
 
-  DomNodeCollection.prototype.removeClass= function(className) {
+  DomNodeCollection.prototype.removeClass = function(className) {
     this.collection.forEach(function(node) {
       if (something) {
         node.className = node.classNamereplace(className + " ", "");
@@ -76,16 +76,16 @@
     });
   };
 
-  DomNodeCollection.prototype.children= function() {
+  DomNodeCollection.prototype.children = function() {
     var childCol = new DomNodeCollection();
     this.collection.forEach(function(node) {
-      childCol.collection = childCol.collection.concat(Array.prototype.slice.call(node.children));
+      childCol.collection = childCol.collection.concat([].slice.call(node.children));
     });
 
     return childCol;
   };
 
-  DomNodeCollection.prototype.parent= function() {
+  DomNodeCollection.prototype.parent = function() {
     var parentCol = new DomNodeCollection();
     var seen = {};
     this.collection.forEach(function(node) {
@@ -98,4 +98,46 @@
     return parentCol;
   };
 
+//Get the descendants of each element in the current set of matched elements,
+//filtered by a selector, jQuery object, or element.
+  DomNodeCollection.prototype.find = function(selector) {
+    var results = [];
+
+    if (typeof selector === "string") {
+      this.collection.forEach(function(node) {
+        results = results.concat([].slice.call(node.querySelectorAll(selector)));
+      });
+    } else if (selector instanceof DomNodeCollection) {
+
+    } else if (selector instanceof HTMLElement) {
+
+    }
+
+    return new DomNodeCollection(results);
+  };
+
+  DomNodeCollection.prototype.remove = function() {
+    this.collection.forEach(function(node) {
+      node.remove();
+    });
+
+    return this.collection;
+  };
+
+// Attach an event handler function for one or more events to the selected elements.
+  DomNodeCollection.prototype.on = function (eventType, selector, data, handler) {
+    var collection = this.collection;
+    if (selector) {
+      collection = this.find(selector).collection;
+    }
+
+    collection.forEach(function(node) {
+      node.addEventListener(eventType, handler.bind(null, data));
+    });
+  };
+
+// Remove an event handler.
+  DomNodeCollection.prototype.off = function () {
+    
+  };
 })();
