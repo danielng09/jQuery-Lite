@@ -11,7 +11,7 @@
   };
 
   var DomNodeCollection = function(array) {
-    this.collection = array;
+    this.collection = array || [];
   };
 
   DomNodeCollection.prototype.html = function(string) {
@@ -74,6 +74,15 @@
         node.className = node.className.replace(className, "");
       }
     });
+  };
+
+  DomNodeCollection.prototype.children= function() {
+    var childCol = new DomNodeCollection();
+    this.collection.forEach(function(node) {
+      childCol.collection = childCol.collection.concat(Array.prototype.slice.call(node.children));
+    });
+
+    return childCol;
   };
 
 
