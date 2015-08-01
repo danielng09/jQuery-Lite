@@ -1,13 +1,65 @@
 (function () {
   window.$l = function(selector) {
     var elementList = [];
+    var events = [];
     if (typeof selector === "string") {
       elementList = elementList.concat(Array.prototype.slice.call(document.querySelectorAll(selector)));
     } else if (selector instanceof HTMLElement) {
       console.log("HTML ELEMENT!");
       elementList.push(selector);
+    } else if (selector instanceof Function) {
+        events.push(selector);
+        return;
     }
+
+    events.forEach(function(handler) {
+      document.addEventListener('DOMContentLoaded', handler);
+    });
+
     return new DomNodeCollection(elementList);
+  };
+
+// Let's implement a super simple function to merge JavaScript objects.
+// The arguments will be two or more objects.
+  $l.extend = function() {
+    var objects = [].slice.call(arguments);
+    var merged = {};
+    objects.forEach(function(object) {
+      for (var prop in object) {
+        merged[prop] = object[prop];
+      }
+    });
+
+    return merged;
+  };
+
+// Perform an asynchronous HTTP (Ajax) request.
+  $l.ajax = function(options) {
+    // Provide defaults for success, error, url, method, data, and contentType
+    var defaults = {
+      success: function() { alert('success'); },
+      error: function() { alert('error'); },
+      url: "",
+      method: "GET",
+      data: {},
+      contentType: 'application/x-www-form-urlencoded; charset=UTF-8'
+    };
+    options = $l.extend(defaults, options);
+
+    var request = new XMLHttpRequest();
+
+    request.onload = function() {
+      if (request.readyState == XMLHttpRequest.DONE ) {
+        if (request.status == 200) { // status: OK
+          options.success(request.response);
+        } else { // status: Bad request
+          options.error(request.response);
+        }
+      }
+    };
+
+    request.open(options.method, options.url, true);
+    request.send();
   };
 
   var DomNodeCollection = function(array) {
@@ -151,4 +203,16 @@
 
     return this;
   };
+
+
 })();
+
+
+
+// var options = {
+// success: function(response) {
+//    document.getElementByClassName('results').innerHTML = response;
+//    },
+// url: "http://www.goodtravels.io/api/users",
+// method: "GET"
+// }
