@@ -1,26 +1,32 @@
 (function () {
-  window.$l = function(selector) {
+  window.$l = function(arg) {
+    this._docReady = false;
     var elementList = [];
     var events = [];
-    if (typeof selector === "string") {
-      elementList = elementList.concat(Array.prototype.slice.call(document.querySelectorAll(selector)));
-    } else if (selector instanceof HTMLElement) {
+    if (typeof arg === "string") {
+      elementList = elementList.concat([].slice.call(document.querySelectorAll(arg)));
+    } else if (arg instanceof HTMLElement) {
       console.log("HTML ELEMENT!");
-      elementList.push(selector);
-    } else if (selector instanceof Function) {
-        events.push(selector);
-        return;
+      elementList.push(arg);
+    } else if (arg instanceof Function) {
+      if (this._docReady === true) {
+        arg();
+      } else {
+        events.push(arg);
+      }
+      return;
     }
 
-    events.forEach(function(handler) {
-      document.addEventListener('DOMContentLoaded', handler);
-    });
+    document.addEventListener('DOMContentLoaded', function() {
+      this._docReady = true;
+      events.forEach(function(fn) {
+        fn();
+      });
+    }.bind(this));
 
     return new DomNodeCollection(elementList);
   };
 
-// Let's implement a super simple function to merge JavaScript objects.
-// The arguments will be two or more objects.
   $l.extend = function() {
     var objects = [].slice.call(arguments);
     var merged = {};
@@ -33,9 +39,7 @@
     return merged;
   };
 
-// Perform an asynchronous HTTP (Ajax) request.
   $l.ajax = function(options) {
-    // Provide defaults for success, error, url, method, data, and contentType
     var defaults = {
       success: function() { alert('success'); },
       error: function() { alert('error'); },
@@ -50,9 +54,9 @@
 
     request.onload = function() {
       if (request.readyState == XMLHttpRequest.DONE ) {
-        if (request.status == 200) { // status: OK
+        if (request.status == 200) {
           options.success(request.response);
-        } else { // status: Bad request
+        } else {
           options.error(request.response);
         }
       }
@@ -82,8 +86,6 @@
     });
   };
 
-  // this method should be able to accept either a jQuery-lite wrapped collection, an HTML element, or a string.
-  // Description: Insert content, specified by the parameter, to the end of each element in the set of matched elements.
   DomNodeCollection.prototype.append = function(thing) {
     if (type instanceof DomNodeCollection) {
       this.collection.concat(thing.collection);
@@ -176,7 +178,6 @@
     return this.collection;
   };
 
-// Attach an event handler function for one or more events to the selected elements.
   DomNodeCollection.prototype.on = function (eventType, selector, data, handler) {
     var collection = this.collection;
     if (selector) {
@@ -190,7 +191,7 @@
     return this;
   };
 
-// Remove an event handler.
+// fix
   DomNodeCollection.prototype.off = function (eventType, selector, handler) {
     var collection = this.collection;
     if (selector) {
@@ -206,8 +207,6 @@
 
 
 })();
-
-
 
 // var options = {
 // success: function(response) {
