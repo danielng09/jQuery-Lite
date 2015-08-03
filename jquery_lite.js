@@ -20,7 +20,7 @@
     document.addEventListener('DOMContentLoaded', function() {
       this._docReady = true;
       events.forEach(function(fn) {
-        fn();
+        fn().bind(this);
       });
     }.bind(this));
 
@@ -49,6 +49,18 @@
       contentType: 'application/x-www-form-urlencoded; charset=UTF-8'
     };
     options = $l.extend(defaults, options);
+
+    switch(options.method.toUpperCase()) {
+      case "GET":
+        var field, queryString = [];
+        for(field in options.data) {
+          queryString.push(field + "=" + options.data[field] + "&");
+        }
+        options.url = options.url + "?" + queryString.join("&");
+        break;
+      case "POST":
+        break;
+    }
 
     var request = new XMLHttpRequest();
 
