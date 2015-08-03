@@ -27,6 +27,18 @@
     return new DomNodeCollection(elementList);
   };
 
+  $l.isEmptyObject = function(obj) {
+    function hasKeys(o) {
+      for (var name in o) {
+        if (o.hasOwnProperty(name))
+          return true;
+      }
+      return false;
+    }
+
+    return !hasKeys(obj);
+  };
+
   $l.extend = function() {
     var objects = [].slice.call(arguments);
     var merged = {};
@@ -50,16 +62,14 @@
     };
     options = $l.extend(defaults, options);
 
-    switch(options.method.toUpperCase()) {
-      case "GET":
-        var field, queryString = [];
-        for(field in options.data) {
-          queryString.push(field + "=" + options.data[field] + "&");
-        }
-        options.url = options.url + "?" + queryString.join("&");
-        break;
-      case "POST":
-        break;
+    var params;
+    if (!$l.isEmptyObject(options.data)) {
+      var field, queryString = [];
+      for(field in options.data) {
+        queryString.push(field + "=" + options.data[field] + "&");
+      }
+      params = queryString.join("&");
+      options.url = options.url + "?" + params;
     }
 
     var request = new XMLHttpRequest();
@@ -75,7 +85,7 @@
     };
 
     request.open(options.method, options.url, true);
-    request.send();
+    request.send(params);
   };
 
   var DomNodeCollection = function(array) {
