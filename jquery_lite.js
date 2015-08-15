@@ -183,10 +183,8 @@
       this.collection.forEach(function(node) {
         results = results.concat([].slice.call(node.querySelectorAll(selector)));
       });
-    } else if (selector instanceof DomNodeCollection) {
-
-    } else if (selector instanceof HTMLElement) {
-
+    } else {
+      return;
     }
 
     return new DomNodeCollection(results);
